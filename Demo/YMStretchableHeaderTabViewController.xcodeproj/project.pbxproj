@@ -19,6 +19,7 @@
 		606A15FD1EB56DEC008099E6 /* SegmentedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606A15FA1EB56DEC008099E6 /* SegmentedViewController.swift */; };
 		606A15FE1EB56DEC008099E6 /* StretchableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606A15FB1EB56DEC008099E6 /* StretchableHeaderView.swift */; };
 		606A16001EB57365008099E6 /* SampleDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606A15FF1EB57365008099E6 /* SampleDataViewController.swift */; };
+		60986A021EB87AA300793470 /* SampleHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60986A011EB87AA300793470 /* SampleHeaderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		606A15FA1EB56DEC008099E6 /* SegmentedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedViewController.swift; sourceTree = "<group>"; };
 		606A15FB1EB56DEC008099E6 /* StretchableHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StretchableHeaderView.swift; sourceTree = "<group>"; };
 		606A15FF1EB57365008099E6 /* SampleDataViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleDataViewController.swift; sourceTree = "<group>"; };
+		60986A011EB87AA300793470 /* SampleHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleHeaderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +118,7 @@
 				606A15D31EB56D0E008099E6 /* LaunchScreen.storyboard */,
 				606A15D61EB56D0E008099E6 /* Info.plist */,
 				606A15FF1EB57365008099E6 /* SampleDataViewController.swift */,
+				60986A011EB87AA300793470 /* SampleHeaderView.swift */,
 			);
 			path = YMStretchableHeaderTabViewController;
 			sourceTree = "<group>";
@@ -290,6 +293,7 @@
 				606A15FC1EB56DEC008099E6 /* SegmentedControl.swift in Sources */,
 				606A15CB1EB56D0E008099E6 /* FirstViewController.swift in Sources */,
 				606A15FE1EB56DEC008099E6 /* StretchableHeaderView.swift in Sources */,
+				60986A021EB87AA300793470 /* SampleHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,8 +1,8 @@
 
 import UIKit
 
-@objc protocol StretchableHeaderViewDelegate: NSObjectProtocol {
-    @objc func interactiveSubviews(in headerView: StretchableHeaderView) -> [UIView]
+protocol StretchableHeaderViewDelegate: class {
+    func interactiveSubviews(in headerView: StretchableHeaderView) -> [UIView]
 }
 
 class StretchableHeaderView: UIView {
@@ -25,7 +25,7 @@ class StretchableHeaderView: UIView {
         guard let targetView = super.hitTest(point, with: event) else { return nil}
 
         var interactiveSubviews: [UIView] = []
-        if let delegate = delegate, delegate.responds(to: #selector(StretchableHeaderViewDelegate.interactiveSubviews(in:))) {
+        if let delegate = delegate {
             interactiveSubviews = delegate.interactiveSubviews(in: self)
         } else {
             return targetView
@@ -57,7 +57,7 @@ class StretchableHeaderView: UIView {
         return nil
     }
 
-    func configureHeaderView() {
+    private func configureHeaderView() {
         clipsToBounds = true
     }
 }

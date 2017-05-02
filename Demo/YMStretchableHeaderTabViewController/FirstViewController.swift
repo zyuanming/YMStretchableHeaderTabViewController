@@ -29,6 +29,12 @@ class FirstViewController: SegmentedViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    override func addHeaderView() {
+        let sampleHeaderView = SampleHeaderView()
+        sampleHeaderView.backgroundColor = UIColor.red
+        headerView = sampleHeaderView
+        view.addSubview(sampleHeaderView)
+    }
 
 }
 
