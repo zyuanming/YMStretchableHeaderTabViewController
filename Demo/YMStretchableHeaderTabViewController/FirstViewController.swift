@@ -8,7 +8,7 @@
 
 import UIKit
 
-class FirstViewController: SegmentedViewController {
+class FirstViewController: SegmentedViewController, UIGestureRecognizerDelegate {
 
     let tags: [String] = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7"]
 
@@ -34,6 +34,53 @@ class FirstViewController: SegmentedViewController {
         sampleHeaderView.backgroundColor = UIColor.red
         headerView = sampleHeaderView
         view.addSubview(sampleHeaderView)
+
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        pan.delegate = self
+        sampleHeaderView.addGestureRecognizer(pan)
+    }
+
+    func handlePanGesture(_ pan: UIPanGestureRecognizer) {
+        let selectedViewController = segmentedViewController[selectedIndex]
+        guard let currentScrollView = scrollViewWithSubViewController(viewController: selectedViewController) else { return }
+        // 偏移计算
+        let point = pan.translation(in: headerView!)
+        let contentOffset = currentScrollView.contentOffset
+        let border = -headerView!.maximumOfHeight - segmentedControlHeight
+        let offsety = contentOffset.y - point.y * (1/contentOffset.y * border * 0.8)
+        currentScrollView.contentOffset = CGPoint(x: contentOffset.x, y: offsety)
+
+        if (pan.state == .ended || pan.state == .failed) {
+            if contentOffset.y <= border {
+                // 如果处于刷新
+                // 模拟弹回效果
+                UIView.animate(withDuration: 0.35, animations: {
+                    currentScrollView.contentOffset = CGPoint(x: contentOffset.x, y: border)
+                    self.view.layoutIfNeeded()
+                })
+
+            }
+        }
+
+        // 清零防止偏移累计
+
+        pan.setTranslation(CGPoint.zero, in: headerView)
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+            let point = pan.translation(in: headerView!)
+            if fabs(point.y) <= fabs(point.x) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
     }
 
 }
