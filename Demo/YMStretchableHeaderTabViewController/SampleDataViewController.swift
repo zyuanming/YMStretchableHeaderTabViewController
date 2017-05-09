@@ -10,13 +10,17 @@ import UIKit
 
 class SampleDataViewController: UITableViewController {
 
-    var datas: [String] = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
-
+    var datas: [String] = [] {
+        didSet {
+            self.tableView.reloadData()
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
 
         tableView.reloadData()
+//        tableView.contentSize.height = view.bounds.height
     }
 
     override func didReceiveMemoryWarning() {
@@ -34,8 +38,13 @@ class SampleDataViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
 
-        let text = datas[indexPath.row]
-        cell.textLabel?.text = text
+//        if tableView.contentSize.height < view.bounds.height {
+//            tableView.contentSize.height = view.bounds.height
+//        }
+        if 0 <= indexPath.row, indexPath.row < datas.count {
+            let text = datas[indexPath.row]
+            cell.textLabel?.text = text
+        }
 
         return cell
     }

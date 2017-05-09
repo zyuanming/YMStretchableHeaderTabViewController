@@ -18,8 +18,18 @@ class FirstViewController: SegmentedViewController, UIGestureRecognizerDelegate 
 
 
         var test: [(title: SegmentedControl.SegmentedItem, controller: UIViewController)] = []
-        for tagName in tags {
-            test.append((.init(value: tagName), SampleDataViewController()))
+        for (index, tagName) in tags.enumerated() {
+            let vc = SampleDataViewController()
+            if index == 0 {
+                vc.datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
+            } else if index == 1 {
+                vc.datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five"]
+            } else {
+                let datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
+                let randomNum = arc4random_uniform(UInt32(datas.count)) % 8
+                vc.datas = Array(datas.prefix(upTo: Int(randomNum)))
+            }
+            test.append((.init(value: tagName), vc))
         }
         setControllersForSegments(contents: test)
     }

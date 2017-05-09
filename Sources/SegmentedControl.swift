@@ -126,16 +126,9 @@ open class SegmentedControl: UIControl {
     }
     
     open func setSelected(_ selected: Bool, forSegmentAtIndex index: Int) {
-        guard let segmentsContainerView = segmentsContainerView else { return }
+        guard 0 <= index, index < segmentsButtons.count else { return }
 
-        if isItemScrollEnabled {
-            if let button = buttonAtIndex(index) {
-                var targetX = max(0, button.frame.midX - self.frame.width / 2.0)
-                targetX = min(segmentsContainerView.contentSize.width - self.frame.width, targetX)
-                let point = CGPoint(x: targetX, y: 0)
-                segmentsContainerView.setContentOffset(point, animated: true)
-            }
-        }
+        layoutSelectedOffset(at: index)
 
         if selectedSegmentIndex == index {
             return
@@ -193,12 +186,10 @@ open class SegmentedControl: UIControl {
     }
     
     fileprivate func layoutIndicator() {
-        var rect = CGRect.zero
-        let button = selectedButton()
-        if button != nil {
-            rect = CGRect(x: button!.frame.minX, y: bounds.height - selectionIndicatorHeight, width: button!.frame.width, height: selectionIndicatorHeight)
+        if let button = selectedButton() {
+            let rect = CGRect(x: button.frame.minX, y: bounds.height - selectionIndicatorHeight, width: button.frame.width, height: selectionIndicatorHeight)
+            indicatorView.frame = rect
         }
-        indicatorView.frame = rect
     }
     
     fileprivate func layoutSeparator() {
@@ -249,6 +240,18 @@ open class SegmentedControl: UIControl {
         }
     }
 
+    fileprivate func layoutSelectedOffset(at index: Int) {
+        guard let segmentsContainerView = segmentsContainerView,
+            let button = buttonAtIndex(index),
+            isItemScrollEnabled else { return }
+
+        var targetX = max(0, button.frame.midX - self.frame.width / 2.0)
+        targetX = min(segmentsContainerView.contentSize.width - self.frame.width, targetX)
+        targetX = max(0, targetX)
+        let point = CGPoint(x: targetX, y: 0)
+        segmentsContainerView.setContentOffset(point, animated: true)
+    }
+
     
     fileprivate func insertAllSegments() {
         for index in 0..<items.count {
@@ -279,7 +282,6 @@ open class SegmentedControl: UIControl {
         
         if segmentsContainerView == nil {
             segmentsContainerView = UIScrollView(frame: bounds)
-            segmentsContainerView?.delegate = self
             segmentsContainerView?.showsVerticalScrollIndicator = false
             segmentsContainerView?.showsHorizontalScrollIndicator = false
             segmentsContainerView?.backgroundColor = UIColor.clear
@@ -401,8 +403,3 @@ open class SegmentedControl: UIControl {
     }
 }
 
-extension SegmentedControl: UIScrollViewDelegate {
-    public func scrollViewDidScroll( scrollView: UIScrollView) {
-        scrollView.contentOffset.y = 0
-    }
-}

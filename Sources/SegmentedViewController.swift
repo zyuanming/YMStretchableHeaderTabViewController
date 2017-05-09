@@ -66,18 +66,6 @@ class SegmentedViewController: UIViewController {
         super.viewDidAppear(animated)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        headerView?.frame = CGRect(x: 0, y: headerView!.frame.minY, width: self.view.bounds.width, height: headerView!.maximumOfHeight + scrollView.contentInset.top)
-        let segmentControllY = headerView!.frame.maxY
-        segmentedControl.frame = CGRect(origin: CGPoint(x: 0, y: segmentControllY), size: CGSize(width: self.view.frame.width, height: segmentedControlHeight))
-        disableObserverScrollViewContentOffset = true
-        self.updateOffset()
-        self.layoutHeaderViewAndTabBar()
-        disableObserverScrollViewContentOffset = false
-    }
-
-
 
     // MARK: -
 
@@ -132,6 +120,10 @@ class SegmentedViewController: UIViewController {
 
     func setControllersForSegments(contents: [(title: SegmentedControl.SegmentedItem, controller: UIViewController)]) {
         clearObserver()
+        headerView?.frame = CGRect(x: 0, y: headerView!.frame.minY, width: self.view.bounds.width, height: headerView!.maximumOfHeight + scrollView.contentInset.top)
+        let segmentControllY = headerView!.frame.maxY
+        segmentedControl.frame = CGRect(origin: CGPoint(x: 0, y: segmentControllY), size: CGSize(width: self.view.frame.width, height: segmentedControlHeight))
+
         segmentedViewController = contents.map({$0.1})
         segmentedControl.items = contents.map({$0.0})
         addContainerView()
@@ -223,6 +215,7 @@ class SegmentedViewController: UIViewController {
                 viewController.didMove(toParentViewController: self)
 
                 if let scrollView = self.scrollViewWithSubViewController(viewController: viewController) {
+                    viewController.view.layoutIfNeeded()
 
                     let headerOffset = headerView!.maximumOfHeight
                     scrollView.contentOffset = CGPoint(x: 0, y: -(headerView!.frame.maxY + segmentedControlHeight))
@@ -273,27 +266,6 @@ class SegmentedViewController: UIViewController {
         }
     }
 
-
-    func adjustOffset(from: Int, to: Int) {
-        guard 0 <= from && from < segmentedViewController.count &&
-            0 <= to && to < segmentedViewController.count else { return }
-
-        let fromViewController = segmentedViewController[from]
-        let toViewController = segmentedViewController[to]
-
-        guard let fromScrollView = scrollViewWithSubViewController(viewController: fromViewController),
-            let toScrollView = scrollViewWithSubViewController(viewController: toViewController) else { return }
-
-        let relativePositionY = caculate(contentOffsetY: fromScrollView.contentOffset.y, contentInsetTop: fromScrollView.contentInset.top)
-        if relativePositionY > 0 {
-            toScrollView.contentOffset = fromScrollView.contentOffset
-        } else {
-            let targetRelativePositionY = caculate(contentOffsetY: toScrollView.contentOffset.y, contentInsetTop: toScrollView.contentInset.top)
-            if targetRelativePositionY > 0 {
-                toScrollView.contentOffset = CGPoint(x: toScrollView.contentOffset.x, y: -(segmentedControl.frame.maxY - self.scrollView.contentInset.top))
-            }
-        }
-    }
 
     func caculate(contentOffsetY: CGFloat, contentInsetTop: CGFloat) -> CGFloat {
         return headerView!.maximumOfHeight - headerView!.minimumOfHeight - (contentOffsetY + contentInsetTop)
@@ -395,7 +367,6 @@ extension SegmentedViewController {
                         segmentedViewController[currentPageIndex].endAppearanceTransition()
                         segmentedViewController[previousIndex].beginAppearanceTransition(false, animated: false)
                         segmentedViewController[previousIndex].endAppearanceTransition()
-//                        adjustOffset(from: previousIndex, to: currentPageIndex)
                     }
 
                     if offset == trunc(offset) {
