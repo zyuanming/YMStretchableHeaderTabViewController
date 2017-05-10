@@ -1,8 +1,8 @@
 
 import UIKit
 
-@objc protocol SegmentedViewControllerDelegate: NSObjectProtocol {
-    @objc optional func didScrollToPageAtIndex(_ index: Int)
+protocol SegmentedViewControllerDelegate: class {
+    func didScrollToPageAtIndex(_ index: Int)
 }
 
 @objc protocol StretchableSubViewControllerViewSource {
@@ -19,12 +19,10 @@ class SegmentedViewController: UIViewController {
     var containerView = UIView()
     var segmentedViewController: [UIViewController] = []
     fileprivate var segmentedBackgroundViews: [UIView] = []
-    fileprivate var observerContext = UInt8()
-    fileprivate var disableObserverScrollViewContentOffset = false
     fileprivate var _selectedIndex = 0
     
     var pageTurning: Bool {
-        get {return disableObserverScrollViewContentOffset || scrollView.isTracking}
+        get {return scrollView.isTracking}
     }
     
     var selectedIndex: Int {
@@ -44,13 +42,7 @@ class SegmentedViewController: UIViewController {
     // MARK: - LifeCycle
     
     deinit {
-        /**
-         *  `scrollView.superview`不为空，那肯定调用过`viewDidLoad`。`scrollView`必被`self`观察键`contentOffset`，可以安全移除。
-         */
-        if scrollView.superview != nil {
-            scrollView.delegate = nil
-            scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentOffset), context: &observerContext)
-        }
+        scrollView.delegate = nil
         clearObserver()
     }
     
@@ -139,7 +131,6 @@ class SegmentedViewController: UIViewController {
         scrollView.isPagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.delegate = self
-        scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentOffset), options: [.new, .old], context: &observerContext)
         view.addSubview(scrollView)
 
         view.addSubview(segmentedControl)
@@ -199,10 +190,10 @@ class SegmentedViewController: UIViewController {
         viewController.endAppearanceTransition()
     }
     
-    func loadSubControllerIfNeeded() {
+    func loadSubControllerIfNeeded(_ index: Int? = nil) {
         assert(segmentedControl.numberOfSegments == segmentedViewController.count, "segmentedControl's count must be equal to subviewcontroller's count")
         
-        let currentIndex = segmentedControl.selectedSegmentIndex
+        let currentIndex = index ?? segmentedControl.selectedSegmentIndex
         if 0 <= currentIndex && currentIndex < segmentedViewController.count {
             let viewController = segmentedViewController[currentIndex]
             if viewController.parent == nil {
@@ -222,18 +213,21 @@ class SegmentedViewController: UIViewController {
                     scrollView.contentInset = UIEdgeInsets(top: headerOffset + segmentedControlHeight, left: 0, bottom: 84, right: 0)
                     scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentOffset), options: [.new], context: nil)
                 }
-            }
 
-            layoutSubViewControllerToSelectedViewController()
+                layoutSubViewControllerToSelectedViewController()
+            }
         }
     }
 
-    func updateOffset() {
+    func layoutUI() {
+        headerView?.frame = CGRect(x: 0, y: headerView!.frame.minY, width: self.view.bounds.width, height: headerView!.maximumOfHeight + scrollView.contentInset.top)
+        let segmentControllY = headerView!.frame.maxY
+        segmentedControl.frame = CGRect(origin: CGPoint(x: 0, y: segmentControllY), size: CGSize(width: self.view.frame.width, height: segmentedControlHeight))
+
         for vc in segmentedViewController {
             if vc.parent != nil {
                 if let scrollView = self.scrollViewWithSubViewController(viewController: vc) {
                     let headerOffset = headerView!.maximumOfHeight
-                    scrollView.contentOffset = CGPoint(x: 0, y: -(headerView!.frame.maxY + segmentedControlHeight))
                     scrollView.contentInset = UIEdgeInsets(top: headerOffset + segmentedControlHeight, left: 0, bottom: 84, right: 0)
                 }
             }
@@ -276,7 +270,6 @@ class SegmentedViewController: UIViewController {
 
         var scrollBounds = self.scrollView.bounds
         scrollBounds.origin = CGPoint(x: CGFloat(index) * self.scrollView.bounds.width, y: 0)
-        disableObserverScrollViewContentOffset = true
 
         let newIndex = index
         let oldIndex = Int(scrollView.contentOffset.x / scrollView.frame.width)
@@ -284,10 +277,15 @@ class SegmentedViewController: UIViewController {
         let shiftX = newIndex > oldIndex ? scrollView.bounds.width : -scrollView.bounds.width
 
         if animated {
+
+            let oldVC = segmentedViewController[oldIndex]
+            let targetScrollView = self.scrollViewWithSubViewController(viewController: oldVC)
+            targetScrollView?.showsVerticalScrollIndicator = false
+
             CATransaction.begin()
             CATransaction.setCompletionBlock {
-                self.disableObserverScrollViewContentOffset = false
-                self.delegate?.didScrollToPageAtIndex?(index)
+                targetScrollView?.showsVerticalScrollIndicator = true
+                self.delegate?.didScrollToPageAtIndex(index)
             }
             let oldViewFromValue = CGFloat(newIndex - oldIndex) * scrollView.bounds.width
             let oldViewToValue = CGFloat(newIndex - oldIndex - (newIndex > oldIndex ? 1 : -1)) * scrollView.bounds.width
@@ -311,8 +309,7 @@ class SegmentedViewController: UIViewController {
             segmentedViewController[oldIndex].view.layer.add(animation2, forKey: "shift")
             CATransaction.commit()
         } else {
-            self.disableObserverScrollViewContentOffset = false
-            self.delegate?.didScrollToPageAtIndex?(index)
+            self.delegate?.didScrollToPageAtIndex(index)
         }
 
     }
@@ -349,54 +346,17 @@ class SegmentedViewController: UIViewController {
 extension SegmentedViewController {
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 
-        if context == &observerContext {
-            guard !disableObserverScrollViewContentOffset else {
+        if pageTurning { return }
+        let selectedViewController = segmentedViewController[selectedIndex]
+        if let scrollView = self.scrollViewWithSubViewController(viewController: selectedViewController) {
+            if let objectScrollView = object as? UIScrollView, scrollView != objectScrollView {
                 return
             }
-
-            if let change = change, let newValue = change[NSKeyValueChangeKey.newKey] as? NSValue, let oldValue = change[NSKeyValueChangeKey.oldKey] as? NSValue {
-                if newValue.cgPointValue != oldValue.cgPointValue {
-                    let offset = scrollView.contentOffset.x / scrollView.bounds.width
-                    let currentPageIndex = Int(offset + 0.5)
-                    let previousIndex = _selectedIndex
-                    if _selectedIndex != currentPageIndex {
-                        _selectedIndex = currentPageIndex
-                        segmentedControl.selectedSegmentIndex = currentPageIndex
-                        loadSubControllerIfNeeded()
-                        segmentedViewController[currentPageIndex].beginAppearanceTransition(true, animated: false)
-                        segmentedViewController[currentPageIndex].endAppearanceTransition()
-                        segmentedViewController[previousIndex].beginAppearanceTransition(false, animated: false)
-                        segmentedViewController[previousIndex].endAppearanceTransition()
-                    }
-
-                    if offset == trunc(offset) {
-                        delegate?.didScrollToPageAtIndex?(currentPageIndex)
-                    }
-                }
+            if scrollView.isTracking {
+                scrollView.showsVerticalScrollIndicator = true
             }
-        } else {
-            if pageTurning { return }
-
-            guard selectedIndex >= 0, selectedIndex < segmentedViewController.count else { return }
-            let selectedViewController = segmentedViewController[selectedIndex]
-            if let scrollView = self.scrollViewWithSubViewController(viewController: selectedViewController) {
-                if let objectScrollView = object as? UIScrollView, scrollView != objectScrollView {
-                    return
-                }
-                self.layoutHeaderViewAndTabBar()
-            }
+            self.layoutHeaderViewAndTabBar()
         }
-        
-
-    }
-}
-
-extension SegmentedViewController {
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        disableObserverScrollViewContentOffset = true
-        scrollView.contentOffset = CGPoint(x: CGFloat(segmentedControl.selectedSegmentIndex) * size.width, y: 0)
-        coordinator.animate(alongsideTransition: nil, completion: { _ in self.disableObserverScrollViewContentOffset = false })
     }
 }
 
@@ -405,8 +365,31 @@ extension SegmentedViewController {
 
 extension SegmentedViewController: UIScrollViewDelegate {
 
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offset = scrollView.contentOffset.x / scrollView.bounds.width
+        let currentPageIndex = Int(offset + 0.5)
+        let previousIndex = _selectedIndex
+        if _selectedIndex != currentPageIndex {
+            loadSubControllerIfNeeded(currentPageIndex)
+            segmentedViewController[currentPageIndex].beginAppearanceTransition(true, animated: false)
+            segmentedViewController[currentPageIndex].endAppearanceTransition()
+            segmentedViewController[previousIndex].beginAppearanceTransition(false, animated: false)
+            segmentedViewController[previousIndex].endAppearanceTransition()
+            _selectedIndex = currentPageIndex
+            segmentedControl.selectedSegmentIndex = currentPageIndex
+        }
+
+        if offset == trunc(offset) {
+            delegate?.didScrollToPageAtIndex(currentPageIndex)
+        }
+    }
+
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         self.layoutSubViewControllerToSelectedViewController()
+        let selectedViewController = segmentedViewController[selectedIndex]
+        if let targetScrollView = self.scrollViewWithSubViewController(viewController: selectedViewController) {
+            targetScrollView.showsVerticalScrollIndicator = false
+        }
     }
 }
 

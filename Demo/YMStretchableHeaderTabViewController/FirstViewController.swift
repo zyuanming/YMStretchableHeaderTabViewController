@@ -26,7 +26,7 @@ class FirstViewController: SegmentedViewController, UIGestureRecognizerDelegate 
                 vc.datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five"]
             } else {
                 let datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
-                let randomNum = arc4random_uniform(UInt32(datas.count)) % 8
+                let randomNum = arc4random_uniform(UInt32(datas.count))
                 vc.datas = Array(datas.prefix(upTo: Int(randomNum)))
             }
             test.append((.init(value: tagName), vc))
