@@ -228,6 +228,7 @@ class SegmentedViewController: UIViewController {
             if vc.parent != nil {
                 if let scrollView = self.scrollViewWithSubViewController(viewController: vc) {
                     let headerOffset = headerView!.maximumOfHeight
+                    scrollView.contentOffset = CGPoint(x: 0, y: -(headerView!.frame.maxY + segmentedControlHeight))
                     scrollView.contentInset = UIEdgeInsets(top: headerOffset + segmentedControlHeight, left: 0, bottom: 84, right: 0)
                 }
             }
