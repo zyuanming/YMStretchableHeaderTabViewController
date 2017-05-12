@@ -20,6 +20,7 @@ class SegmentedViewController: UIViewController {
     var segmentedViewController: [UIViewController] = []
     fileprivate var segmentedBackgroundViews: [UIView] = []
     fileprivate var _selectedIndex = 0
+    fileprivate var lastSegmentControlFrame: CGRect = CGRect.zero
     
     var pageTurning: Bool {
         get {return scrollView.isTracking}
@@ -27,7 +28,11 @@ class SegmentedViewController: UIViewController {
     
     var selectedIndex: Int {
         get { return _selectedIndex }
-        set { showSelectedViewController(at: newValue, animated: true) ; _selectedIndex = newValue }
+        set {
+            showSelectedViewController(at: newValue, animated: true)
+            _selectedIndex = newValue
+            lastSegmentControlFrame = segmentedControl.frame
+        }
     }
     
     let segmentedControlBackgroundColor = UIColor.white
@@ -213,9 +218,8 @@ class SegmentedViewController: UIViewController {
                     scrollView.contentInset = UIEdgeInsets(top: headerOffset + segmentedControlHeight, left: 0, bottom: 84, right: 0)
                     scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentOffset), options: [.new], context: nil)
                 }
-
-                layoutSubViewControllerToSelectedViewController()
             }
+            layoutSubViewControllerToSelectedViewController()
         }
     }
 
@@ -236,34 +240,21 @@ class SegmentedViewController: UIViewController {
     }
 
     func layoutSubViewControllerToSelectedViewController() {
-        guard selectedIndex >= 0 , selectedIndex < segmentedViewController.count else { return }
         let selectedViewController = segmentedViewController[selectedIndex]
-        if let selectedScrollView = self.scrollViewWithSubViewController(viewController: selectedViewController) {
-            for vc in segmentedViewController {
-                if vc == selectedViewController {
-                    continue
-                }
+        for vc in segmentedViewController {
+            if vc == selectedViewController {
+                continue
+            }
 
-                if vc.parent != nil {
-                    if let targetScrollView = self.scrollViewWithSubViewController(viewController: vc) {
-                        let relativePositionY = caculate(contentOffsetY: selectedScrollView.contentOffset.y, contentInsetTop: selectedScrollView.contentInset.top)
-                        if relativePositionY > 0 {
-                            targetScrollView.contentOffset = selectedScrollView.contentOffset
-                        } else {
-                            let targetRelativePositionY = caculate(contentOffsetY: targetScrollView.contentOffset.y, contentInsetTop: targetScrollView.contentInset.top)
-                            if targetRelativePositionY > 0 {
-                                targetScrollView.contentOffset = CGPoint(x: targetScrollView.contentOffset.x, y: -(segmentedControl.frame.maxY - self.scrollView.contentInset.top))
-                            }
-                        }
+            if vc.parent != nil {
+                if let targetScrollView = self.scrollViewWithSubViewController(viewController: vc) {
+
+                    if !lastSegmentControlFrame.equalTo(segmentedControl.frame) {
+                        targetScrollView.contentOffset = CGPoint(x: targetScrollView.contentOffset.x, y: -(segmentedControl.frame.maxY - self.scrollView.contentInset.top))
                     }
                 }
             }
         }
-    }
-
-
-    func caculate(contentOffsetY: CGFloat, contentInsetTop: CGFloat) -> CGFloat {
-        return headerView!.maximumOfHeight - headerView!.minimumOfHeight - (contentOffsetY + contentInsetTop)
     }
 
     func scrollToPageAtIndex(_ index: Int, animated: Bool = false) {

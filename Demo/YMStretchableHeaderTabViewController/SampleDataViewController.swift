@@ -15,6 +15,7 @@ class SampleDataViewController: UITableViewController {
             self.tableView.reloadData()
         }
     }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
@@ -49,6 +50,24 @@ class SampleDataViewController: UITableViewController {
         return cell
     }
 
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return UIView()
+    }
 
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        let numberOfRows = CGFloat(tableView.dataSource?.tableView(tableView, numberOfRowsInSection: section) ?? 0)
+
+        if numberOfRows == 0 {
+            return tableView.frame.height
+        } else {
+            let extralHeight = tableView.frame.height - numberOfRows * tableView.rowHeight - tableView.contentInset.bottom
+
+            return max(0.01, extralHeight)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.01
+    }
 
 }

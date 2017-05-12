@@ -19,7 +19,7 @@ class FirstViewController: SegmentedViewController, UIGestureRecognizerDelegate 
 
         var test: [(title: SegmentedControl.SegmentedItem, controller: UIViewController)] = []
         for (index, tagName) in tags.enumerated() {
-            let vc = SampleDataViewController()
+            let vc = SampleDataViewController(style: .grouped)
             if index == 0 {
                 vc.datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
             } else if index == 1 {
