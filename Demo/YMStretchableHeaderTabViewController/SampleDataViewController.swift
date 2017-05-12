@@ -19,7 +19,7 @@ class SampleDataViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
-
+        tableView.rowHeight = 44
         tableView.reloadData()
 //        tableView.contentSize.height = view.bounds.height
     }
