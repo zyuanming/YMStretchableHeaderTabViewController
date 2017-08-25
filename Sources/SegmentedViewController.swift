@@ -314,7 +314,6 @@ class SegmentedViewController: UIViewController {
         if selectedIndex != index {
             segmentedControl.selectedSegmentIndex = index
             loadSubControllerIfNeeded()
-            scrollToPageAtIndex(index, animated: animated)
             segmentedViewController[index].beginAppearanceTransition(true, animated: animated)
             segmentedViewController[index].endAppearanceTransition()
             segmentedViewController[selectedIndex].beginAppearanceTransition(false, animated: animated)
@@ -327,7 +326,9 @@ class SegmentedViewController: UIViewController {
     // MARK: - SegmentedControl Action
 
     func onSegmentedControlValueChanged(_ sender: SegmentedControl) {
-        selectedIndex = segmentedControl.selectedSegmentIndex
+        let currentIndex = segmentedControl.selectedSegmentIndex
+        selectedIndex = currentIndex
+        scrollToPageAtIndex(currentIndex, animated: true)
     }
 
 }
@@ -360,15 +361,8 @@ extension SegmentedViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset.x / scrollView.bounds.width
         let currentPageIndex = Int(offset + 0.5)
-        let previousIndex = _selectedIndex
-        if _selectedIndex != currentPageIndex {
-            loadSubControllerIfNeeded(currentPageIndex)
-            segmentedViewController[currentPageIndex].beginAppearanceTransition(true, animated: false)
-            segmentedViewController[currentPageIndex].endAppearanceTransition()
-            segmentedViewController[previousIndex].beginAppearanceTransition(false, animated: false)
-            segmentedViewController[previousIndex].endAppearanceTransition()
-            _selectedIndex = currentPageIndex
-            segmentedControl.selectedSegmentIndex = currentPageIndex
+        if selectedIndex != currentPageIndex {
+            selectedIndex = currentPageIndex
         }
 
         if offset == trunc(offset) {

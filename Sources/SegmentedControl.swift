@@ -176,7 +176,6 @@ open class SegmentedControl: UIControl {
 
         })
 
-        sendActions(for: .valueChanged)
     }
     
     //MARK: Private Methods
@@ -399,6 +398,7 @@ open class SegmentedControl: UIControl {
     @objc fileprivate func didSelected(_ sender: UIButton) {
         if selectedSegmentIndex != sender.tag {
             selectedSegmentIndex = sender.tag
+            sendActions(for: .valueChanged)
         }
     }
 }

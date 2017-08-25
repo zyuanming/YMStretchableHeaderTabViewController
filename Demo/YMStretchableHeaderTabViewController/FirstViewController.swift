@@ -20,12 +20,20 @@ class FirstViewController: SegmentedViewController, UIGestureRecognizerDelegate 
         var test: [(title: SegmentedControl.SegmentedItem, controller: UIViewController)] = []
         for (index, tagName) in tags.enumerated() {
             let vc = SampleDataViewController(style: .grouped)
+
             if index == 0 {
-                vc.datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
+                vc.datas = ["hello", "hi", "very good", "yes.", "one", "two",
+                            "three", "four", "five", "six", "seven", "eight",
+                            "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ",
+                            "123yeo", "you are", "i am", "hello word", "hi"].map{ "\($0)_\(index + 1)"}
             } else if index == 1 {
-                vc.datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five"]
+                vc.datas = ["hello", "hi", "very good", "yes.", "one", "two",
+                            "three", "four", "five"].map{ "\($0)_\(index + 1)"}
             } else {
-                let datas = ["hello", "hi", "very good", "yes.", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ", "123yeo", "you are", "i am", "hello word", "hi"]
+                let datas = ["hello", "hi", "very good", "yes.", "one", "two",
+                             "three", "four", "five", "six", "seven", "eight",
+                             "nine", "ten...", "elevent", "bgqwwwwwiu1`ss1 ",
+                             "123yeo", "you are", "i am", "hello word", "hi"].map{ "\($0)_\(index + 1)"}
                 let randomNum = arc4random_uniform(UInt32(datas.count))
                 vc.datas = Array(datas.prefix(upTo: Int(randomNum)))
             }
