@@ -54,6 +54,9 @@ class SegmentedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
+        if #available(iOS 11.0, *) {
+            scrollView.contentInsetAdjustmentBehavior = .never
+        }
         automaticallyAdjustsScrollViewInsets = false
         configureSegmentedController()
         addPrivateViews()
@@ -212,7 +215,9 @@ class SegmentedViewController: UIViewController {
 
                 if let scrollView = self.scrollViewWithSubViewController(viewController: viewController) {
                     viewController.view.layoutIfNeeded()
-
+                    if #available(iOS 11.0, *) {
+                        scrollView.contentInsetAdjustmentBehavior = .never
+                    }
                     let headerOffset = headerView!.maximumOfHeight
                     scrollView.contentOffset = CGPoint(x: 0, y: -(headerView!.frame.maxY + segmentedControlHeight))
                     scrollView.contentInset = UIEdgeInsets(top: headerOffset + segmentedControlHeight, left: 0, bottom: 84, right: 0)

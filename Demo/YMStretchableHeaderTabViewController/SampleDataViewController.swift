@@ -21,7 +21,6 @@ class SampleDataViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
         tableView.rowHeight = 44
         tableView.reloadData()
-//        tableView.contentSize.height = view.bounds.height
     }
 
     override func didReceiveMemoryWarning() {
@@ -29,19 +28,16 @@ class SampleDataViewController: UITableViewController {
         // Dispose of any resources that can be recreated.
     }
 
+
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return datas.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
 
-//        if tableView.contentSize.height < view.bounds.height {
-//            tableView.contentSize.height = view.bounds.height
-//        }
         if 0 <= indexPath.row, indexPath.row < datas.count {
             let text = datas[indexPath.row]
             cell.textLabel?.text = text
@@ -67,7 +63,11 @@ class SampleDataViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0.01
+        return 0.1
+    }
+
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UIView()
     }
 
 }
