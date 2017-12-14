@@ -330,7 +330,7 @@ class SegmentedViewController: UIViewController {
 
     // MARK: - SegmentedControl Action
 
-    func onSegmentedControlValueChanged(_ sender: SegmentedControl) {
+    @objc func onSegmentedControlValueChanged(_ sender: SegmentedControl) {
         let currentIndex = segmentedControl.selectedSegmentIndex
         selectedIndex = currentIndex
         scrollToPageAtIndex(currentIndex, animated: true)

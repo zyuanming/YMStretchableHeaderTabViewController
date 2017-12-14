@@ -58,7 +58,7 @@ class FirstViewController: SegmentedViewController, UIGestureRecognizerDelegate 
         sampleHeaderView.addGestureRecognizer(pan)
     }
 
-    func handlePanGesture(_ pan: UIPanGestureRecognizer) {
+    @objc func handlePanGesture(_ pan: UIPanGestureRecognizer) {
         let selectedViewController = segmentedViewController[selectedIndex]
         guard let currentScrollView = scrollViewWithSubViewController(viewController: selectedViewController) else { return }
         // 偏移计算

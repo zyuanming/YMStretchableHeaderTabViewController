@@ -39,7 +39,7 @@ class SampleHeaderView: StretchableHeaderView, StretchableHeaderViewDelegate, UI
         return [button, self]
     }
 
-    func handleTagGesture(_ gestureRecognizer: UITapGestureRecognizer) {
+    @objc func handleTagGesture(_ gestureRecognizer: UITapGestureRecognizer) {
         print("tag.....")
     }
 
