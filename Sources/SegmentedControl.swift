@@ -33,6 +33,7 @@ open class SegmentedControl: UIControl {
         }
     }
 
+    var scrollViewContentSizeBottomMargin: CGFloat = 50
     var selectionIndicatorHeight: CGFloat = 2.5
     var animationDuration: TimeInterval = 0.2
     var segmentNormalColor: UIColor = UIColor.black.withAlphaComponent(0.6)
@@ -108,8 +109,7 @@ open class SegmentedControl: UIControl {
         } else if selectedSegmentIndex < 0 {
             selectedSegmentIndex = 0
         }
-        
-        configureSegments()
+
         layoutButtons()
         layoutIndicator()
         layoutSeparator()
@@ -218,7 +218,7 @@ open class SegmentedControl: UIControl {
             }
         }
 
-        if allWidth <= frame.width {
+        if allWidth <= frame.width - scrollViewContentSizeBottomMargin {
             segmentsContainerView?.contentSize = CGSize(width: frame.width, height: floor(bounds.height))
             let buttonContentAllWidth = allWidth - margin * CGFloat(segmentsButtons.count * 2)
             margin = (frame.width - (buttonContentAllWidth)) / CGFloat(segmentsButtons.count * 2)
@@ -235,7 +235,8 @@ open class SegmentedControl: UIControl {
                 }
             }
         } else {
-            segmentsContainerView?.contentSize = CGSize(width: allWidth + 50, height: floor(bounds.height))
+            segmentsContainerView?.contentSize = CGSize(width: allWidth + scrollViewContentSizeBottomMargin,
+                                                        height: floor(bounds.height))
         }
     }
 
@@ -256,7 +257,20 @@ open class SegmentedControl: UIControl {
         for index in 0..<items.count {
             addButtonForSegment(index)
         }
+        configureSegments()
         setNeedsLayout()
+
+        if segmentsButtons.count == 0 {
+            selectedSegmentIndex = -1;
+        } else if selectedSegmentIndex < 0 {
+            selectedSegmentIndex = 0
+        }
+
+        if self.bounds.width > 0 {
+            layoutButtons()
+            layoutIndicator()
+            layoutSeparator()
+        }
     }
     
     fileprivate func removeAllSegments() {

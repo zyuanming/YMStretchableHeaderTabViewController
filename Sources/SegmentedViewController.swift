@@ -118,8 +118,10 @@ class SegmentedViewController: UIViewController {
         }
     }
 
-    func setControllersForSegments(contents: [(title: SegmentedControl.SegmentedItem, controller: UIViewController)]) {
+    func setControllersForSegments(contents: [(title: SegmentedControl.SegmentedItem, controller: UIViewController)], scrollTo index: Int = 0) {
         clearObserver()
+        segmentedViewController.forEach( { $0.removeFromParentViewController() })
+
         headerView?.frame = CGRect(x: 0, y: headerView!.frame.minY, width: self.view.bounds.width, height: headerView!.maximumOfHeight + scrollView.contentInset.top)
         let segmentControllY = headerView!.frame.maxY
         segmentedControl.frame = CGRect(origin: CGPoint(x: 0, y: segmentControllY), size: CGSize(width: self.view.frame.width, height: segmentedControlHeight))
@@ -127,8 +129,8 @@ class SegmentedViewController: UIViewController {
         segmentedViewController = contents.map({$0.1})
         segmentedControl.items = contents.map({$0.0})
         addContainerView()
-        _selectedIndex = 0
-        segmentedControl.selectedSegmentIndex = selectedIndex
+        _selectedIndex = index
+        segmentedControl.selectedSegmentIndex = index
         showSelectedPage()
     }
     

@@ -16,11 +16,25 @@ class SampleDataViewController: UITableViewController {
         }
     }
 
+    var tag: String = ""
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
         tableView.rowHeight = 44
         tableView.reloadData()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        print("appear: \(tag)")
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        print("disappear: \(tag)")
     }
 
     override func didReceiveMemoryWarning() {
